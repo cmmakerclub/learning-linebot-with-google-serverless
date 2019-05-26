@@ -22,30 +22,29 @@ exports.helloWorld = functions.https.onRequest((request, response) => {
 });
 
 exports.line_cmmc_chatbot_webhook = functions.https.onRequest((req, res) => {
-  function handleEvent(event) {
-    if (event.type === "message" && event.message.type === "text") {
-      console.log("-----------------------------------------");
-      console.log(`source type = ${event.source.type}`);
-      console.log(`message text = ${event.message.text}`);
-      console.log(`replyToken = ${event.replyToken}`);
-      console.log(JSON.stringify(event));
-      const data = {
-        type: "text",
-        text: event.message.text,
-      };
-      client.replyMessage(event.replyToken, data).then(res => {
-        console.log(`reply result = `, res);
-      });
-
-      // calling mqtt bridge
-      get(`${httpEndpoint}?topic=${topic}&command=${event.message.text}`);
-      console.log("/-----------------------------------------");
-    }
-  }
 
   if (req.method === "POST") {
     const body = Object.assign(req.body);
-    body.events.map(handleEvent);
+    body.events.map(event => {
+      if (event.type === "message" && event.message.type === "text") {
+        console.log("-----------------------------------------");
+        console.log(`source type = ${event.source.type}`);
+        console.log(`message text = ${event.message.text}`);
+        console.log(`replyToken = ${event.replyToken}`);
+        console.log(JSON.stringify(event));
+        const data = {
+          type: "text",
+          text: event.message.text,
+        };
+        client.replyMessage(event.replyToken, data).then(res => {
+          console.log(`reply result = `, res);
+        });
+
+        // calling mqtt bridge
+        get(`${httpEndpoint}?topic=${topic}&command=${event.message.text}`);
+        console.log("/-----------------------------------------");
+      }
+    });
     res.status(200).send("post ok");
   } else if (req.method === "GET") {
     res.status(200).send("get ok");
