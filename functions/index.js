@@ -41,6 +41,17 @@ exports.line_KornWtp_chatbot_webhook = functions.https.onRequest((req, res) => {
   }
 });
 
+exports.line_Boat_chatbot_webhook = functions.https.onRequest((req, res) => {
+  if (req.method === "POST") {
+    const body = Object.assign(req.body);
+    res.status(200).send("post ok");
+  } else if (req.method === "GET") {
+    res.status(200).
+    send("line_Boat_chatbot_webhook GET OK " + JSON.stringify(req));
+  } else {
+    res.status(500).send("Forbidden!");
+  }
+});
 
 exports.line_cmmc_chatbot_webhook = functions.https.onRequest((req, res) => {
   if (req.method === "POST") {
