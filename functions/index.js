@@ -32,6 +32,9 @@ exports.line_KornWtp_chatbot_webhook = functions.https.onRequest((req, res) => {
   }
 });
 
+
+functions.config().botboat.iot.http.endpoint;
+
 exports.line_Boat_chatbot_webhook = functions.https.onRequest((req, res) => {
   if (req.method === "POST") {
     const body = Object.assign(req.body);
@@ -46,8 +49,8 @@ exports.line_Boat_chatbot_webhook = functions.https.onRequest((req, res) => {
 
 exports.line_cmmc_chatbot_webhook = functions.https.onRequest((req, res) => {
   const config = {
-    channelAccessToken: functions.config().cmmc.line["channel-access-token"],
-    channelSecret: functions.config().cmmc.line["channel-secret"],
+    channelAccessToken: functions.config().botboat.line["channel-access-token"],
+    channelSecret: functions.config().botboat.line["channel-secret"],
   };
   const client = new line.Client(config);
   if (req.method === "POST") {
