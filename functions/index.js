@@ -17,12 +17,19 @@ let topic = `CMMC/PLUG-002/$/command`;
 // create LINE SDK client
 const client = new line.Client(config);
 
-exports.helloWorld = functions.https.onRequest((request, response) => {
-  response.send("Hello from Firebase!");
+exports.line_nat_chatbot_webhook = functions.https.onRequest((req, res) => {
+  if (req.method === "POST") {
+    const body = Object.assign(req.body);
+    res.status(200).send("post ok");
+  } else if (req.method === "GET") {
+    res.status(200).
+    send("line_nat_chatbot_webhook GET OK " + JSON.stringify(req));
+  } else {
+    res.status(500).send("Forbidden!");
+  }
 });
 
 exports.line_cmmc_chatbot_webhook = functions.https.onRequest((req, res) => {
-
   if (req.method === "POST") {
     const body = Object.assign(req.body);
     body.events.map(event => {
@@ -36,6 +43,13 @@ exports.line_cmmc_chatbot_webhook = functions.https.onRequest((req, res) => {
           type: "text",
           text: event.message.text,
         };
+
+        if (event.message.text === "Nat") {
+          data.text = "หวัดดี";
+        } else {
+          data.text = event.message.text;
+        }
+
         client.replyMessage(event.replyToken, data).then(res => {
           console.log(`reply result = `, res);
         });
@@ -47,7 +61,7 @@ exports.line_cmmc_chatbot_webhook = functions.https.onRequest((req, res) => {
     });
     res.status(200).send("post ok");
   } else if (req.method === "GET") {
-    res.status(200).send("get ok");
+    res.status(200).send("GET OK " + JSON.stringify(req));
   } else {
     res.status(500).send("Forbidden!");
   }
