@@ -49,6 +49,10 @@ exports.line_Boat_chatbot_webhook = functions.https.onRequest((req, res) => {
 
 exports.line_cmmc_chatbot_webhook = functions.https.onRequest((req, res) => {
   const config = {
+    channelAccessToken: functions.config().cmmc.line["channel-access-token"],
+    channelSecret: functions.config().cmmc.line["channel-secret"],
+    channelAccessToken: functions.config().korn.line["channel-access-token"],
+    channelSecret: functions.config().korn.line["channel-secret"],
     channelAccessToken: functions.config().botboat.line["channel-access-token"],
     channelSecret: functions.config().botboat.line["channel-secret"],
   };
