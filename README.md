@@ -9,7 +9,7 @@ $ firebase functions:config:get
 
 ```
   const functions = require("firebase-functions");
-  functions.config().iot.http.endpoint;
+  functions.config().user.iot.http.endpoint;
 ```
 # Deploying
 
