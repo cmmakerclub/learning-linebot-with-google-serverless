@@ -59,6 +59,7 @@ exports.line_cmmc_chatbot_webhook = functions.https.onRequest((req, res) => {
         console.log(`message text = ${event.message.text}`);
         console.log(`replyToken = ${event.replyToken}`);
         console.log(JSON.stringify(event));
+
         const data = {
           type: "text",
           text: event.message.text,
