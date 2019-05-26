@@ -5,17 +5,8 @@ const {get, post} = require("./utils");
 
 admin.initializeApp();
 
-// create LINE SDK config from env variables
-const config = {
-  channelAccessToken: functions.config().line["channel-access-token"],
-  channelSecret: functions.config().line["channel-secret"],
-};
-
 const httpEndpoint = functions.config().iot.http.endpoint;
 let topic = `CMMC/PLUG-002/$/command`;
-
-// create LINE SDK client
-const client = new line.Client(config);
 
 exports.line_nat_chatbot_webhook = functions.https.onRequest((req, res) => {
   if (req.method === "POST") {
@@ -54,6 +45,11 @@ exports.line_Boat_chatbot_webhook = functions.https.onRequest((req, res) => {
 });
 
 exports.line_cmmc_chatbot_webhook = functions.https.onRequest((req, res) => {
+  const config = {
+    channelAccessToken: functions.config().cmmc.line["channel-access-token"],
+    channelSecret: functions.config().cmmc.line["channel-secret"],
+  };
+  const client = new line.Client(config);
   if (req.method === "POST") {
     const body = Object.assign(req.body);
     body.events.map(event => {
