@@ -12,6 +12,7 @@
     "node": "8"
   },
   "dependencies": {
+    "@google-cloud/bigquery": "^4.0.0",
     "@line/bot-sdk": "^6.7.1",
     "@slack/events-api": "^2.2.0",
     "@slack/web-api": "^5.0.1",

@@ -2,6 +2,7 @@ const functions = require("firebase-functions");
 const line = require("@line/bot-sdk");
 const admin = require("firebase-admin");
 const {get, post} = require("./utils");
+const {flex1} = require("./flex.messages");
 
 admin.initializeApp();
 
@@ -32,9 +33,6 @@ exports.line_KornWtp_chatbot_webhook = functions.https.onRequest((req, res) => {
   }
 });
 
-
-functions.config().botboat.iot.http.endpoint;
-
 exports.line_Boat_chatbot_webhook = functions.https.onRequest((req, res) => {
   if (req.method === "POST") {
     const body = Object.assign(req.body);
@@ -51,10 +49,6 @@ exports.line_cmmc_chatbot_webhook = functions.https.onRequest((req, res) => {
   const config = {
     channelAccessToken: functions.config().cmmc.line["channel-access-token"],
     channelSecret: functions.config().cmmc.line["channel-secret"],
-    channelAccessToken: functions.config().korn.line["channel-access-token"],
-    channelSecret: functions.config().korn.line["channel-secret"],
-    channelAccessToken: functions.config().botboat.line["channel-access-token"],
-    channelSecret: functions.config().botboat.line["channel-secret"],
   };
   const client = new line.Client(config);
   if (req.method === "POST") {
@@ -67,13 +61,15 @@ exports.line_cmmc_chatbot_webhook = functions.https.onRequest((req, res) => {
         console.log(`replyToken = ${event.replyToken}`);
         console.log(JSON.stringify(event));
 
-        const data = {
+        let data = {
           type: "text",
           text: event.message.text,
         };
 
         if (event.message.text === "Nat") {
           data.text = "หวัดดี";
+        } else if (event.message.text === "flex") {
+          data = flex1;
         } else {
           data.text = event.message.text;
         }
