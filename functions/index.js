@@ -29,6 +29,7 @@ exports.pps_rocket_bot = functions.https.onRequest(require('./fn/rocket'));
 exports.pps_pants_bot = functions.https.onRequest(require('./fn/pants'));
 exports.pps_arrow_bot = functions.https.onRequest(require('./fn/arrow'));
 exports.pps_countdown_bot = functions.https.onRequest(require('./fn/countdown'));
+exports.pps_stretch_bot = functions.https.onRequest(require('./fn/stretch'));
 
 exports.line_cmmc_chatbot_webhook = functions.https.onRequest((
     req, res) => {

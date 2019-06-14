@@ -2,8 +2,11 @@ const fetch = require('node-fetch');
 
 var mqtt = require('mqtt');
 var mqttClient1 = mqtt.connect('mqtt://mqtt.cmmc.io');
-var mqttClient2 = mqtt.connect(
-    'mqtt://6EiMMOxwOEcW7Cn:LFXAklU3qDAI2L7bXqZ2f27t6FI=@ga.netpie.io?clientId=rIfoUxMpLxfly0AN');
+var mqttClient2 = mqtt.connect('mqtt://gb.netpie.io', {
+  username: '6EiMMOxwOEcW7Cn',
+  password: 'LFXAklU3qDAI2L7bXqZ2f27t6FI=',
+  clientId: 'rIfoUxMpLxfly0AN',
+});
 
 mqttClient1.on('connect', function() {
   mqttClient1.subscribe('presence', function(err) {
