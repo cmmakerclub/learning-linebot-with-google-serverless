@@ -8,6 +8,21 @@ var mqttClient2 = mqtt.connect('mqtt://gb.netpie.io', {
   clientId: 'rIfoUxMpLxfly0AN',
 });
 
+mqttClient2.on('connect', function() {
+  console.log('on connect');
+});
+
+mqttClient2.on('message', function(topic, message) {
+  // message is buffer
+  console.log(message.tostring());
+});
+
+mqttClient2.on('close', function(topic, message) {
+  // message is buffer
+  // console.log(message.tostring())
+  console.log('closed');
+});
+
 mqttClient1.on('connect', function() {
   mqttClient1.subscribe('presence', function(err) {
     if (!err) {
