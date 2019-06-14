@@ -16,6 +16,7 @@
     "@line/bot-sdk": "^6.7.1",
     "@slack/events-api": "^2.2.0",
     "@slack/web-api": "^5.0.1",
+    "cmmc-mqtt": "^0.1.6",
     "firebase-admin": "~7.0.0",
     "firebase-functions": "^2.3.0",
     "node-fetch": "^2.6.0"

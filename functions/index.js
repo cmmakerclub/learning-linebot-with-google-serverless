@@ -3,8 +3,17 @@ const line = require('@line/bot-sdk');
 const admin = require('firebase-admin');
 const {get, post} = require('./utils');
 const {flex1} = require('./flex.messages');
+const {mqtt} = require('cmmc-mqtt');
 
 admin.initializeApp();
+
+const mqttClient1 = mqtt.create('mqtt://mqtt.cmmc.io', []).
+register('on_connected', function() { log('mqtt connected.'); });
+
+const constructReplyMessage = (text) => {
+  let data = {type: 'text', text};
+  return data;
+};
 
 const httpEndpoint = functions.config().iot.http.endpoint;
 let topic = `CMMC/PLUG-002/$/command`;
@@ -33,18 +42,6 @@ exports.line_KornWtp_chatbot_webhook = functions.https.onRequest((req, res) => {
   }
 });
 
-exports.line_Boat_chatbot_webhook = functions.https.onRequest((req, res) => {
-  if (req.method === 'POST') {
-    const body = Object.assign(req.body);
-    res.status(200).send('post ok');
-  } else if (req.method === 'GET') {
-    res.status(200).
-    send('line_Boat_chatbot_webhook GET OK ' + JSON.stringify(req));
-  } else {
-    res.status(500).send('Forbidden!');
-  }
-});
-
 exports.pps_rocket_bot = functions.https.onRequest((req, res) => {
   let channelAccessToken = functions.config()['pps-rocket-bot']['line']['channel-access-token'];
   let channelSecret = functions.config()['pps-rocket-bot']['line']['channel-secret'];
@@ -53,10 +50,20 @@ exports.pps_rocket_bot = functions.https.onRequest((req, res) => {
   if (req.method === 'POST') {
     const body = Object.assign(req.body);
     body.events.map(event => {
-      if (event.type === 'message' && event.message.type === 'text') {
-        let data = constructReplyMessage(event.message.text);
-        client.replyMessage(event.replyToken, data).then(res => { });
-        res.status(200).send('post ok');
+      if (event.type === 'message') {
+        if (event.message.type === 'text') {
+          mqttClient1.publish('cloud-functions/rocket', event.message.text);
+          client.replyMessage(event.replyToken,
+              constructReplyMessage(event.message.text)).then(res => {
+            res.status(200).send('post ok');
+          });
+        } else {
+          client.replyMessage(event.replyToken,
+              constructReplyMessage(`ยังไม่รองรับข้อความประเภท ${event.message.type}`)).
+          then(res => {
+            res.status(200).send('post ok');
+          });
+        }
       } else if (req.method === 'GET') {
         res.status(200).send('rocket GET OK ' + JSON.stringify(req));
       } else {
@@ -66,16 +73,10 @@ exports.pps_rocket_bot = functions.https.onRequest((req, res) => {
   }
 });
 
-const constructReplyMessage = (text) => {
-  let data = {type: 'text', text};
-  return data;
-};
-
 exports.pps_arrow_bot = functions.https.onRequest((req, res) => {
   let channelAccessToken = functions.config()['pps-arrow-bot']['line']['channel-access-token'];
   let channelSecret = functions.config()['pps-arrow-bot']['line']['channel-secret'];
   const client = new line.Client({channelAccessToken, channelSecret});
-
   if (req.method === 'POST') {
     const body = Object.assign(req.body);
     body.events.map(event => {
@@ -90,27 +91,6 @@ exports.pps_arrow_bot = functions.https.onRequest((req, res) => {
         res.status(500).send('Forbidden!');
       }
     });
-  }
-});
-
-exports.line_Boat_chatbot_webhook = functions.https.onRequest((
-    req, res) => {
-  if (req.method === 'POST') {
-    const body = Object.assign(req.body);
-    body.events.map(event => {
-      if (event.type === 'message' && event.message.type === 'text') {
-        client.replyMessage(event.replyToken, data).then(res => {
-          console.log(`reply result = `, res);
-        });
-      }
-    });
-
-    res.status(200).send('post ok');
-  } else if (req.method === 'GET') {
-    res.status(200).
-    send('line_Boat_chatbot_webhook GET OK ' + JSON.stringify(req));
-  } else {
-    res.status(500).send('Forbidden!');
   }
 });
 
