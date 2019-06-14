@@ -3,12 +3,26 @@ const line = require('@line/bot-sdk');
 const admin = require('firebase-admin');
 const {get, post} = require('./utils');
 const {flex1} = require('./flex.messages');
-const {mqtt} = require('cmmc-mqtt');
+//const {mqtt} = require('cmmc-mqtt');
+
+var mqtt = require('mqtt');
+var mqttClient1 = mqtt.connect('mqtt://mqtt.cmmc.io');
+
+mqttClient1.on('connect', function() {
+  mqttClient1.subscribe('presence', function(err) {
+    if (!err) {
+      mqttClient1.publish('presence', 'Hello mqtt');
+    }
+  });
+});
+
+mqttClient1.on('message', function(topic, message) {
+  console.log(message.toString());
+});
+
+process.env.LOG_LEVEL = 'error';
 
 admin.initializeApp();
-
-const mqttClient1 = mqtt.create('mqtt://mqtt.cmmc.io', []).
-register('on_connected', function() { log('mqtt connected.'); });
 
 const constructReplyMessage = (text) => {
   let data = {type: 'text', text};
@@ -39,20 +53,24 @@ const textMapping = {
   'ขายาว': {text: 'OFF', topic: ''},
 };
 
-exports.line_KornWtp_chatbot_webhook = functions.https.onRequest((req, res) => {
-  if (req.method === 'POST') {
-    const body = Object.assign(req.body);
-    res.status(200).send('post ok');
-  } else if (req.method === 'GET') {
-    res.status(200).
-    send('line_KornWtp_chatbot_webhook GET OK ' + JSON.stringify(req));
-  } else {
-    res.status(500).send('Forbidden!');
-  }
-});
+//exports.line_KornWtp_chatbot_webhook = functions.https.onRequest((req, res) => {
+//  if (req.method === 'POST') {
+//    const body = Object.assign(req.body);
+//    res.status(200).send('post ok');
+//  } else if (req.method === 'GET') {
+//    res.status(200).
+//    send('line_KornWtp_chatbot_webhook GET OK ' + JSON.stringify(req));
+//  } else {
+//    res.status(500).send('Forbidden!');
+//  }
+//});
 
 const publishMqtt = ({topic, msg}) => {
-  mqttClient1.publish(topic, msg);
+  try {
+    mqttClient1.publish(topic, msg);
+  } catch (e) {
+    console.error(`found error.`, e);
+  }
 };
 
 exports.pps_rocket_bot = functions.https.onRequest((req, res) => {
@@ -72,6 +90,7 @@ exports.pps_rocket_bot = functions.https.onRequest((req, res) => {
           } else {
             publishMqtt({topic: 'cf/rocket', msg: event.message.text});
           }
+          console.log(`event=`, event);
 
           client.replyMessage(event.replyToken,
               constructReplyMessage(event.message.text)).then(r => {
