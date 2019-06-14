@@ -15,9 +15,9 @@ module.exports = (req, res) => {
           if (textMapping[event.message.text]) {
             let msg = textMapping[event.message.text].text ||
                 event.message.text;
-            publishMqtt({topic: 'cf/countdown', msg});
+            publishMqtt({topic: 'countdown/$/command', msg});
           } else {
-            publishMqtt({topic: 'cf/countdown', msg: event.message.text});
+            publishMqtt({topic: 'countdown/$/command', msg: event.message.text});
           }
           console.log(`event=`, event);
 

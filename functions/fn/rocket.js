@@ -15,12 +15,11 @@ module.exports = (req, res) => {
           if (textMapping[event.message.text]) {
             let msg = textMapping[event.message.text].text ||
                 event.message.text;
-            publishMqtt({topic: 'cf/rocket', msg});
+            publishMqtt({topic: 'rocket/$/command', msg});
           } else {
-            publishMqtt({topic: 'cf/rocket', msg: event.message.text});
+            publishMqtt({topic: 'rocket/$/command', msg: event.message.text});
           }
           console.log(`event=`, event);
-
           client.replyMessage(event.replyToken,
               constructReplyMessage(event.message.text)).then(r => {
             //res.status(200).send('post ok');
