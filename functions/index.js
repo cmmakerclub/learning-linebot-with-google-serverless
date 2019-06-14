@@ -30,6 +30,15 @@ exports.line_nat_chatbot_webhook = functions.https.onRequest((req, res) => {
   }
 });
 
+const textMapping = {
+  'ปล่อยยาน': {text: 'ON', topic: ''},
+  'ลงจอด': {text: 'OFF', topic: ''},
+  'ยกแขนขึ้น': {text: 'ON', topic: ''},
+  'ยกแขนลง': {text: 'OFF', topic: ''},
+  'ขาสั้น': {text: 'ON', topic: ''},
+  'ขายาว': {text: 'OFF', topic: ''},
+};
+
 exports.line_KornWtp_chatbot_webhook = functions.https.onRequest((req, res) => {
   if (req.method === 'POST') {
     const body = Object.assign(req.body);
@@ -42,6 +51,10 @@ exports.line_KornWtp_chatbot_webhook = functions.https.onRequest((req, res) => {
   }
 });
 
+const publishMqtt = ({topic, msg}) => {
+  mqttClient1.publish(topic, msg);
+};
+
 exports.pps_rocket_bot = functions.https.onRequest((req, res) => {
   let channelAccessToken = functions.config()['pps-rocket-bot']['line']['channel-access-token'];
   let channelSecret = functions.config()['pps-rocket-bot']['line']['channel-secret'];
@@ -52,15 +65,22 @@ exports.pps_rocket_bot = functions.https.onRequest((req, res) => {
     body.events.map(event => {
       if (event.type === 'message') {
         if (event.message.type === 'text') {
-          mqttClient1.publish('cloud-functions/rocket', event.message.text);
+          if (textMapping[event.message.text]) {
+            let msg = textMapping[event.message.text].text ||
+                event.message.text;
+            publishMqtt({topic: 'cf/rocket', msg});
+          } else {
+            publishMqtt({topic: 'cf/rocket', msg: event.message.text});
+          }
+
           client.replyMessage(event.replyToken,
-              constructReplyMessage(event.message.text)).then(res => {
+              constructReplyMessage(event.message.text)).then(r => {
             res.status(200).send('post ok');
           });
         } else {
           client.replyMessage(event.replyToken,
               constructReplyMessage(`ยังไม่รองรับข้อความประเภท ${event.message.type}`)).
-          then(res => {
+          then(r => {
             res.status(200).send('post ok');
           });
         }
