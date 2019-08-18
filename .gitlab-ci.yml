@@ -3,6 +3,11 @@ image: node:latest
 deploy_production:
   stage: deploy
   environment: Production
+  cache:
+    paths:
+      - functions/node_modules/
+    key: "$CI_BUILD_REPO"
+
   only:
     - master
   script:
