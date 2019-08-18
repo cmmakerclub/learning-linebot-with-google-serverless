@@ -47,10 +47,12 @@ const textMapping = {
   'ลงจอด': {text: 'OFF', topic: ''},
   'ยกแขนขึ้น': {text: 'ON', topic: ''},
   'ยกแขนลง': {text: 'OFF', topic: ''},
-  'ขาสั้น': {text: 'ON', topic: ''},
-  'ขายาว': {text: 'OFF', topic: ''},
+  'ขาสั้น': {text: 'OFF', topic: ''},
+  'ขายาว': {text: 'ON', topic: ''},
   'หมุนขึ้น': {text: 'ON', topic: ''},
   'หมุนลง': {text: 'OFF', topic: ''},
+  'หมุนซ้าย': {text: 'ON', topic: ''},
+  'หมุนขวา': {text: 'OFF', topic: ''},
 };
 
 const get = (url) => {
