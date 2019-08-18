@@ -11,6 +11,7 @@ cache:
 
 script:
   - echo "Deploy!!"
+  - echo "Deploy!!"
   - pushd functions
   - npm i
   - popd
