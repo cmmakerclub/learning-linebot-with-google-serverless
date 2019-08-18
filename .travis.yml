@@ -2,9 +2,12 @@ language: node_js
 node_js:
   - "10"
 cache:
+  pip: true
   npm: true
   directories:
     - /home/travis/.rvm/
+    - node_modules
+    - $(npm config get prefix)/lib/node_modules/firebase-tools
 
 script:
   - echo "Deploy!!"
