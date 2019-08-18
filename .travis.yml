@@ -6,7 +6,8 @@ script:
   - echo "Deploy!!"
   - pushd functions
   - npm i
+  - popd
 install:
   - npm install -g firebase-tools
 after_success:
-  - firebase deploy --token $FIREBASE_TOKEN
+  - firebase deploy --projectId cmmc-dsc1 --token $FIREBASE_TOKEN
