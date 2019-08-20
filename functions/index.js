@@ -25,6 +25,7 @@ exports.line_nat_chatbot_webhook = functions.https.onRequest((req, res) => {
   }
 });
 
+exports.nat_chatbot = functions.https.onRequest(require('./fn/rocket'));
 exports.pps_rocket_bot = functions.https.onRequest(require('./fn/rocket'));
 exports.pps_pants_bot = functions.https.onRequest(require('./fn/pants'));
 exports.pps_arrow_bot = functions.https.onRequest(require('./fn/arrow'));
