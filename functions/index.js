@@ -33,6 +33,7 @@ exports.pps_pants_bot = functions.https.onRequest(require("./fn/pants"));
 exports.pps_arrow_bot = functions.https.onRequest(require("./fn/arrow"));
 exports.pps_countdown_bot = functions.https.onRequest(require("./fn/countdown"));
 exports.pps_stretch_bot = functions.https.onRequest(require("./fn/stretch"));
+exports.wave_function1 = functions.https.onRequest(require("./fn/wave_function1"));
 
 exports.nat_insert_bq = functions.https.onRequest((req, res) => {
 
