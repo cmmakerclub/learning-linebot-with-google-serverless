@@ -36,11 +36,12 @@ exports.pps_stretch_bot = functions.https.onRequest(require("./fn/stretch"));
 exports.wave_function = functions.https.onRequest(require("./fn/wave_funtion"));
 
 exports.nat_insert_bq = functions.https.onRequest((req, res) => {
-
   const responseJson = {
     recv_date: moment().format("YYYY-MM-DD HH:mm:ss"),
     recv_body_len: req.body.length
   };
+
+  console.log('xxxxxxxx')
 
   if (req.method === "POST") {
     if (Array.isArray(req.body)) {
@@ -108,4 +109,5 @@ exports.line_cmmc_chatbot_webhook = functions.https.onRequest((
   } else {
 
   }
+
 });
