@@ -33,7 +33,7 @@ mqttClient1.on("connect", function() {
   console.log(`mqtt1.on connect`);
   mqttClient1.subscribe("presence", function(err) {
     if (!err) {
-      mqttClient1.publish("presence", "Hello mqtt");
+      //mqttClient1.publish("presence", "Hello mqtt");
     }
   });
 });

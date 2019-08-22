@@ -9,7 +9,7 @@
     "logs": "firebase functions:log"
   },
   "engines": {
-    "node": "10"
+    "node": "8"
   },
   "dependencies": {
     "@google-cloud/bigquery": "^4.1.8",
@@ -22,6 +22,8 @@
     "moment-timezone": "^0.5.26",
     "mqtt": "^3.0.0",
     "node-fetch": "^2.6.0",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4",
     "winston": "^3.2.1"
   },
   "devDependencies": {

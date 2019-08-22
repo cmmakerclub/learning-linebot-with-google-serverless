@@ -1,26 +1,36 @@
 let { constructReplyMessage, publishMqtt, textMapping } = require("./utils");
 
-const functions = require("firebase-functions");
+let f = require("firebase-functions");
 const line = require("@line/bot-sdk");
 const admin = require("firebase-admin");
 const { get, post } = require("./utils");
 const { flex1 } = require("./flex.messages");
 const moment = require("moment-timezone");
 const insertRows = require("./db/cmmc-bq-no-partition");
+const request = require("request-promise");
 
 process.env.LOG_LEVEL = "error";
-const region = "asia-east2";
-const runtimeOpts = {
-  timeoutSeconds: 4,
-  memory: "2GB"
-};
+const configs = f.config();
+//asia-northeast1
+const functions = ((f) => f.region("asia-east2").runWith({
+  timeoutSeconds: 4, memory: "2GB"
+}))(f);
 
 admin.initializeApp();
 
-const httpEndpoint = functions.config().iot.http.endpoint;
+const httpEndpoint = configs.iot.http.endpoint;
 let topic = `CMMC/PLUG-002/$/command`;
 
-exports.line_nat_chatbot_webhook = functions.region(region).runWith(runtimeOpts).onRequest(
+const postToDialogflow = (req, body) => {
+  req.headers.host = "bots.dialogflow.com";
+  return request.post({
+    uri: `${configs.nat.dialogflow}`,
+    headers: req.headers,
+    body: JSON.stringify(body)
+  });
+};
+
+exports.line_nat_chatbot_webhook = functions.https.onRequest(
   (req, res) => {
     if (req.method === "POST") {
       const body = Object.assign(req.body);
@@ -32,22 +42,22 @@ exports.line_nat_chatbot_webhook = functions.region(region).runWith(runtimeOpts)
       res.status(500).send("Forbidden!");
     }
   });
-exports.nat_chatbot = functions.region(region).runWith(runtimeOpts).https.onRequest(
+exports.nat_chatbot = functions.https.onRequest(
   require("./fn/rocket"));
-exports.pps_rocket_bot = functions.region(region).runWith(runtimeOpts).https.onRequest(
+exports.pps_rocket_bot = functions.https.onRequest(
   require("./fn/rocket"));
-exports.pps_pants_bot = functions.region(region).runWith(runtimeOpts).https.onRequest(
+exports.pps_pants_bot = functions.https.onRequest(
   require("./fn/pants"));
-exports.pps_arrow_bot = functions.region(region).runWith(runtimeOpts).https.onRequest(
+exports.pps_arrow_bot = functions.https.onRequest(
   require("./fn/arrow"));
-exports.pps_countdown_bot = functions.region(region).runWith(runtimeOpts).https.onRequest(
+exports.pps_countdown_bot = functions.https.onRequest(
   require("./fn/countdown"));
-exports.pps_stretch_bot = functions.region(region).runWith(runtimeOpts).https.onRequest(
+exports.pps_stretch_bot = functions.https.onRequest(
   require("./fn/stretch"));
-exports.wave_function = functions.region(region).runWith(runtimeOpts).https.onRequest(
+exports.wave_function = functions.https.onRequest(
   require("./fn/wave_funtion"));
 
-exports.nat_insert_bq = functions.region(region).runWith(runtimeOpts).https.onRequest(
+exports.nat_insert_bq = functions.https.onRequest(
   (req, res) => {
     const responseJson = {
       recv_date: moment().format("YYYY-MM-DD HH:mm:ss"),
@@ -84,35 +94,39 @@ exports.nat_insert_bq = functions.region(region).runWith(runtimeOpts).https.onRe
 exports.line_cmmc_chatbot_webhook = functions.https.onRequest((
   req, res) => {
   const config = {
-    channelAccessToken: functions.config().cmmc.line["channel-access-token"],
-    channelSecret: functions.config().cmmc.line["channel-secret"]
+    channelAccessToken: configs.nat.line.bot1["channel-access-token"],
+    channelSecret: configs.nat.line.bot1["channel-secret-token"]
   };
+
+  console.log(config);
+
   const client = new line.Client(config);
   if (req.method === "POST") {
     const body = Object.assign(req.body);
     body.events.map(event => {
+      console.log(event);
       if (event.type === "message" && event.message.type === "text") {
         console.log("-----------------------------------------");
         console.log(`source type = ${event.source.type}`);
         console.log(`message text = ${event.message.text}`);
         console.log(`replyToken = ${event.replyToken}`);
         console.log(JSON.stringify(event));
+        const body = Object.assign({}, req.body);
+        postToDialogflow(req, body);
+      } else {
         let data = constructReplyMessage(event.message.text);
-
-        if (event.message.text === "Nat") {
-          data.text = "หวัดดี";
-        } else if (event.message.text === "flex") {
-          data = flex1;
-        } else {
-          data.text = event.message.text;
+        data.text = JSON.stringify(req.body);
+        try {
+          console.log(data);
+          client.replyMessage(event.replyToken, data).then(res => {
+            console.log(`reply result = `, res);
+          });
+        } catch (e) {
+          console.log("error", e);
         }
 
-        client.replyMessage(event.replyToken, data).then(res => {
-          console.log(`reply result = `, res);
-        });
-
         // calling mqtt bridge
-        get(`${httpEndpoint}?topic=${topic}&command=${event.message.text}`);
+        //get(`${httpEndpoint}?topic=${topic}&command=${event.message.text}`);
         console.log("/-----------------------------------------");
       }
     });
