@@ -167,4 +167,8 @@ app.get("/hello", (req, res) => {
   res.send(`Hello ${req.user.name}`);
 });
 
+app.get("/", (req, res) => {
+  res.send("This is GET.");
+});
+
 exports.widget = functions.https.onRequest(app);
