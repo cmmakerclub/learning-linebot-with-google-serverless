@@ -24,7 +24,7 @@ deploy:
   skip_cleanup: true
   on:
     branch: master
-    tags: true
+    tags: false
   provider: firebase
   token:
     secure: QaZEg80Ooa/1ktJ2NDyShrSt30wsfvkHTwC7scMWjE3K4reQHwHnHbbKISzKnr+vrf/dPZr6nKAVMLrjzo/kC8Vf7LHfBzt0DELKWjxGQHpJvtR2nmX/hrZxDMPT53usfmtHEzX4S4Q56HxHqeatlbaOZanroLQN9axbyKA6sdJKYPBpNQ+OQn8Q7d83nibzJl8ENGkevPuxD/RaLDhDf+LMKeDGabzOGbEJU4VWPcdONzDSxs6Vz3Z0HxruO4uqWk/b6Xa5IobQqLia1fFSARm2Bwoeg61nWFe2PLluuFpB79ZO3MsTxRGqGIardaFGXLeqhJsj/MTpeqGsmB0Z9jQAMybftIxtlkaWJmSPNliuZZ/n7NJpihTLulS0tZApnGcUcUkHrxIAerIPkfydUmsHBL8xJiaXRrZD6KwrIGqVSflfJkWKBjGuud6PXUoSRFZY4r5v6uZ0saxxWJ8pmxVRqzQd9f1nJkoYqmQpuwr/6s/AWMx5ON7FRgYuEaS2jixgjU0m3QGM1nb44I0R450h5wykTDRfLehuS32O5kCwV30li6/IstDv8b4SZ5RrEjii/0MvzdCXie4Lf++8M+uar9R1jGDUksXAiVgeTwqjq/0ZlS+rHWConAL6yivuAlEnptt1ykoDdTQJKQArEpDHJNxA6SaUHYrMzeavfco=
