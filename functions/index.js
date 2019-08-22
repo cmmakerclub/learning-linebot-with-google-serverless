@@ -154,17 +154,17 @@ exports.line_cmmc_chatbot_webhook = functions.https.onRequest((
 
 });
 const express = require("express");
-const cors = require("cors");
-
+const cookieParser = require("cookie-parser")();
+const cors = require("cors")({ origin: true });
 const app = express();
 
-// Automatically allow cross-origin requests
-app.use(cors({ origin: true }));
 app.use(cors);
+app.use(cookieParser);
+//app.use(validateFirebaseIdToken);
 //app.use(cookieParser);
 //app.use(validateFirebaseIdToken);
 app.get("/hello", (req, res) => {
-  res.send(`Hello ${req.user.name}`);
+  res.send(`Hello /hello`);
 });
 
 app.get("/", (req, res) => {
