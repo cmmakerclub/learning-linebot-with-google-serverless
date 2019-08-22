@@ -28,6 +28,4 @@ deploy:
   provider: firebase
   token:
     secure: "uR3AZ2KHcV4Dsj9Z2H2f/e6Pg8hI0BJAoB/jh06LCiHlrzy3vZZDENn0XYdsnDWEPnO6QO8RCF972tdi5Wddlu7tMiU8ugnko3GNHvgqZqL67qhBv0IiQTC4h6YEKNVg3WnWJCJzzNB3kgzmY+4AT+jh+NuzdJw5cHspb8cIJNHE6+PX43FFa/mqN/rBaPXe54IkQqsYJxmEMw18gq6wqmWv/qisUNXWa6hvXkSZp3p+99rwxCpsQHP2nE3rg4iIbQA5UAosxzWp3MCiLVY0u1+KVQSaj7PigL+i8oMij2ug98ZqdykUnIru4vVOBOocMS69eCHT1X+gWfiFgeNv5mKMWXZjngpR3rOKTa50Ok4rg599ubSEN1n9oXwQpvbYLb9SVUZ9osPj13QONvUtikg/GYdwd0jBro/VNvFlQiy2iOT5O+qByoCf5F2glHm2hC2lO+X/YErBoDyxjfSwjKrDl+SrFPeb4nr5sZ4GE9icKjEUiCLZ7LiSIwu8oUI6eIxTEnp0UW+eYd0L3kGYf3P5CE3skvu+KLQD83XRQvMVwmJ6Vdhh8qCrxcFHlrFaH7JbXF1yzmzyFdvbBzN68iSJjV+0VkAxuYfvJT43YL5yMitDtv/UGvJeZFQ8EU+YgyRIkvPT2ewFtJVonYbSKJU/JwHUy3sk70Kj+JEDuks="
-
-  message: "your message"
   project: "cmmc-dsc1"
