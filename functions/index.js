@@ -16,7 +16,12 @@ const functions = ((f) => f.region("asia-east2").runWith({
   timeoutSeconds: 4, memory: "2GB"
 }))(f);
 
-admin.initializeApp();
+admin.initializeApp({
+    credential: admin.credential.applicationDefault()
+  }
+);
+
+const db = admin.firestore();
 
 const httpEndpoint = configs.iot.http.endpoint;
 let topic = `CMMC/PLUG-002/$/command`;
@@ -81,14 +86,24 @@ exports.nat_insert_bq = functions.https.onRequest(
           console.log("error = ", err, "data=", data);
         });
       }
-
       res.status(200).send(JSON.stringify(responseJson));
+    } else if (req.method === "GET") {
+      let data = db.collection("").doc("1").get() // collection ของ DB ที่มี Document ที่ชื่อว่า 1
+        .then(c => {
+          console.log(c);
+        });
     } else if (req.method === "PUT") {
       res.status(403).send("Forbidden!");
     } else {
       res.status(403).send("Forbidden!");
     }
 
+  });
+
+exports.myFunctionName = f.firestore
+  .document("users/nat").onWrite((change, context) => {
+    // ... Your code here
+    consle.log("users/nat onWrite!");
   });
 
 exports.line_cmmc_chatbot_webhook = functions.https.onRequest((
