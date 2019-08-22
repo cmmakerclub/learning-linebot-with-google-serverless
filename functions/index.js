@@ -26,27 +26,31 @@ exports.line_nat_chatbot_webhook = functions.https.onRequest((req, res) => {
     res.status(500).send("Forbidden!");
   }
 });
+const region = 'asia-east2';
+const runtimeOpts = {
+  timeoutSeconds: 4,
+  memory: "2GB"
+};
+exports.nat_chatbot = functions.region(region).runWith(runtimeOpts).https.onRequest(require("./fn/rocket"));
+exports.pps_rocket_bot = functions.region(region).runWith(runtimeOpts).https.onRequest(require("./fn/rocket"));
+exports.pps_pants_bot = functions.region(region).runWith(runtimeOpts).https.onRequest(require("./fn/pants"));
+exports.pps_arrow_bot = functions.region(region).runWith(runtimeOpts).https.onRequest(require("./fn/arrow"));
+exports.pps_countdown_bot = functions.region(region).runWith(runtimeOpts).https.onRequest(require("./fn/countdown"));
+exports.pps_stretch_bot = functions.region(region).runWith(runtimeOpts).https.onRequest(require("./fn/stretch"));
+exports.wave_function = functions.region(region).runWith(runtimeOpts).https.onRequest(require("./fn/wave_funtion"));
 
-exports.nat_chatbot = functions.https.onRequest(require("./fn/rocket"));
-exports.pps_rocket_bot = functions.https.onRequest(require("./fn/rocket"));
-exports.pps_pants_bot = functions.https.onRequest(require("./fn/pants"));
-exports.pps_arrow_bot = functions.https.onRequest(require("./fn/arrow"));
-exports.pps_countdown_bot = functions.https.onRequest(require("./fn/countdown"));
-exports.pps_stretch_bot = functions.https.onRequest(require("./fn/stretch"));
-exports.wave_function = functions.https.onRequest(require("./fn/wave_funtion"));
-exports.wave_function_1 = functions.https.onRequest(require("./fn/wave_funtion"));
 exports.nat_insert_bq = functions.https.onRequest((req, res) => {
   const responseJson = {
     recv_date: moment().format("YYYY-MM-DD HH:mm:ss"),
     recv_body_len: req.body.length
   };
 
-  console.log('xxxxxxxx')
+  console.log('xxxxxxxx ')
 
   if (req.method === "POST") {
     if (Array.isArray(req.body)) {
       console.log("req is array");
-      console.log("body = ", JSON.stringify(req.body));
+      console.log ("body = ", JSON.stringify(req.body));
       insertRows(req.body, (err, data) => {
         console.log("error = ", err, "data=", data);
       });
