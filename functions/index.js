@@ -6,6 +6,7 @@ let {
 } = require("./utils");
 
 //let console = { log: debug };
+let counter = 0;
 let f = require("firebase-functions");
 
 const line = require("@line/bot-sdk");
@@ -222,30 +223,40 @@ app.get("/firestore", (req, res) => {
     .doc(req.query.doc);
 
   let output = {};
-  //docRef
-  //  .get()
-  //  .then((doc) => {
-  //    if (doc.exists) {
-  //      console.log("Document data:", doc.data(), `id=${doc.id}`);
-  //    } else {
-  //      // doc.data() will be undefined in this case
-  //      console.log("No such document!");
-  //    }
-  //  }).catch(function(error) {
-  //  console.log("Error getting document:", error);
-  //});
-
   docRef
-    .getCollections()
-    .then(collections => {
-      collections.forEach(collection => {
-        console.log("Found subcollection with id:",
-          collection.id,
-          collection.data());
-      });
-    });
+    .get()
+    .then((doc) => {
 
-  ret.status = 200;
+      //doc.forEach(task => {
+      //  console.log(task.id, task.data());
+      //});
+
+      if (doc.exists) {
+        console.log("Document data:", doc.data(), `id=${doc.id}`);
+      } else {
+        // doc.data() will be undefined in this case
+        console.log("No such document!");
+      }
+    }).catch((error) => {
+    console.log("Error getting document:", error);
+  });
+  //console.log(docRef);
+  //
+  //docRef
+  //  .getCollections()
+  //  .then(collections => {
+  //    collections.forEach(collection => {
+  //      console.log("Found subcollection with id:",
+  //        collection.id,
+  //        collection.data());
+  //    });
+  //  });
+
+  counter += 2;
+  ret = {
+    ...ret, counter,
+    status: 200
+  };
   res.status(ret.status).send(JSON.stringify(ret));
 
 });
@@ -267,10 +278,11 @@ app.get("/", (req, res) => {
 });
 
 exports.cronSyntax = functions.pubsub
-  .schedule("5 * * * *")
+  .schedule("* * * * *")
   .timeZone("Asia/Bangkok")
   .onRun(context => {
-    console.log("triggered every 5 minutes", context);
+    console.log("triggered every 1 minutes ", context, counter);
+    counter++;
     return 3;
   });
 
