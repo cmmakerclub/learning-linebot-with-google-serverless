@@ -219,27 +219,33 @@ app.get("/firestore", (req, res) => {
   }
 
   var docRef = db
-    .collection(req.query.collection)
-    .doc(req.query.doc);
+    .collection(req.query.collection);
 
-  let output = {};
-  docRef
-    .get()
-    .then((doc) => {
-
-      //doc.forEach(task => {
-      //  console.log(task.id, task.data());
-      //});
-
-      if (doc.exists) {
-        console.log("Document data:", doc.data(), `id=${doc.id}`);
-      } else {
-        // doc.data() will be undefined in this case
-        console.log("No such document!");
-      }
-    }).catch((error) => {
-    console.log("Error getting document:", error);
+  docRef.getCollections().then(collections => {
+    console.log(collections);
+    collections.forEach(i => {
+      console.log(i);
+    });
   });
+  //.doc(req.query.doc);
+  //let output = {};
+  //docRef
+  //  .get()
+  //  .then((doc) => {
+  //
+  //    //doc.forEach(task => {
+  //    //  console.log(task.id, task.data());
+  //    //});
+  //
+  //    if (doc.exists) {
+  //      console.log("Document data:", doc.data(), `id=${doc.id}`);
+  //    } else {
+  //      // doc.data() will be undefined in this case
+  //      console.log("No such document!");
+  //    }
+  //  }).catch((error) => {
+  //  console.log("Error getting document:", error);
+  //});
   //console.log(docRef);
   //
   //docRef
