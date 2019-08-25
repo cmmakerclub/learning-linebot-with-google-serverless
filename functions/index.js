@@ -236,6 +236,7 @@ app.get("/firestore", (req, res) => {
     .collection(req.query.collection)
     .doc(req.query.doc);
 
+  let req2 = Object.assign({}, req);
   docRef
     .get()
     .then((doc) => {
@@ -243,17 +244,15 @@ app.get("/firestore", (req, res) => {
         let data = Object.assign({}, doc.data());
         console.log("Document data:", doc.data(), `id=${doc.id}`);
         firestoreCache[doc.id] = Object.assign({}, data);
-        req.headers = {
+        req2.headers = {
           "Content-Type": "application/x-www-form-urlencoded",
           "Authorization": `Bearer ${data.token}`
         };
         console.log(`being posted.`);
-        post("https://notify-api.line.me/api/notify",
-          {
-            message:
-              data[req.query.message]
-          },
-          req);
+        post(
+          "https://notify-api.line.me/api/notify",
+          `message=${data.messages[req2.query.message]}`,
+          req2);
         console.log(`posted.`);
       } else {
         console.log("No such document!");

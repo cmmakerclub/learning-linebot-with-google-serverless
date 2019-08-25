@@ -76,11 +76,11 @@ const post = (url, body, req) => {
       "Content-Type": "application/json",
       timeout: 5 * 1000
     };
-
   }
+  console.log(headers);
   const options = {
     method: "POST",
-    body: JSON.stringify(body),
+    body: body,
     headers
   };
   return fetch(url, options)
