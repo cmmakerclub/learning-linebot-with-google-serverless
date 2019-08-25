@@ -222,18 +222,28 @@ app.get("/firestore", (req, res) => {
     .doc(req.query.doc);
 
   let output = {};
+  //docRef
+  //  .get()
+  //  .then((doc) => {
+  //    if (doc.exists) {
+  //      console.log("Document data:", doc.data(), `id=${doc.id}`);
+  //    } else {
+  //      // doc.data() will be undefined in this case
+  //      console.log("No such document!");
+  //    }
+  //  }).catch(function(error) {
+  //  console.log("Error getting document:", error);
+  //});
+
   docRef
-    .get()
-    .then((doc) => {
-      if (doc.exists) {
-        console.log("Document data:", doc.data(), `id=${doc.id}`);
-      } else {
-        // doc.data() will be undefined in this case
-        console.log("No such document!");
-      }
-    }).catch(function(error) {
-    console.log("Error getting document:", error);
-  });
+    .getCollections()
+    .then(collections => {
+      collections.forEach(collection => {
+        console.log("Found subcollection with id:",
+          collection.id,
+          collection.data());
+      });
+    });
 
   ret.status = 200;
   res.status(ret.status).send(JSON.stringify(ret));
