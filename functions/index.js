@@ -221,6 +221,7 @@ app.get("/firestore", (req, res) => {
     .collection(req.query.collection)
     .doc(req.query.doc);
 
+  let output = {};
   docRef
     .get()
     .then((doc) => {
