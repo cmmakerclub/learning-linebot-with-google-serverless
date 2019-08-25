@@ -218,18 +218,21 @@ app.get("/firestore", (req, res) => {
     return;
   }
 
-  var docRef = db
-    .collection(req.query.collection);
-
-  docRef
-    .get()
-    .then(collections => {
-      //console.log(collections);
-      collections.forEach(i => {
-        console.log(i);
+  let citiesRef = db.collection(req.query.collection);
+  let allCities = citiesRef.get()
+    .then(snapshot => {
+      snapshot.forEach(doc => {
+        console.log(doc.id, "=>", doc.data());
       });
+    })
+    .catch(err => {
+      console.log("Error getting documents", err);
     });
-  //.doc(req.query.doc);
+
+  var docRef = db
+    .collection(req.query.collection)
+    .doc(req.query.doc);
+
   //let output = {};
   //docRef
   //  .get()
