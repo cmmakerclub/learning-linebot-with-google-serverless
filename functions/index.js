@@ -208,6 +208,8 @@ app.get("/xyz", (req, res) => {
   res.status(200).send(`/xyz`);
 });
 
+const firestoreCache = {};
+
 app.get("/firestore", (req, res) => {
   console.log(`req.query=`, req.query);
   let ret = Object.assign({}, req.query);
@@ -218,50 +220,35 @@ app.get("/firestore", (req, res) => {
     return;
   }
 
-  let citiesRef = db.collection(req.query.collection);
-  let allCities = citiesRef.get()
-    .then(snapshot => {
-      snapshot.forEach(doc => {
-        console.log(doc.id, "=>", doc.data());
-      });
-    })
-    .catch(err => {
-      console.log("Error getting documents", err);
-    });
+  //let citiesRef = db.collection(req.query.collection);
+  //let allCities = citiesRef.get()
+  //  .then(snapshot => {
+  //    snapshot.forEach(doc => {
+  //      console.log(doc.id, "=>", doc.data());
+  //    });
+  //  })
+  //  .catch(err => {
+  //    console.log("Error getting documents", err);
+  //  });
 
+  let output = {};
   var docRef = db
     .collection(req.query.collection)
     .doc(req.query.doc);
 
-  //let output = {};
-  //docRef
-  //  .get()
-  //  .then((doc) => {
-  //
-  //    //doc.forEach(task => {
-  //    //  console.log(task.id, task.data());
-  //    //});
-  //
-  //    if (doc.exists) {
-  //      console.log("Document data:", doc.data(), `id=${doc.id}`);
-  //    } else {
-  //      // doc.data() will be undefined in this case
-  //      console.log("No such document!");
-  //    }
-  //  }).catch((error) => {
-  //  console.log("Error getting document:", error);
-  //});
-  //console.log(docRef);
-  //
-  //docRef
-  //  .getCollections()
-  //  .then(collections => {
-  //    collections.forEach(collection => {
-  //      console.log("Found subcollection with id:",
-  //        collection.id,
-  //        collection.data());
-  //    });
-  //  });
+  docRef
+    .get()
+    .then((doc) => {
+      if (doc.exists) {
+        console.log("Document data:", doc.data(), `id=${doc.id}`);
+        firestoreCache[doc.id] = Object.assign({}, doc);
+      } else {
+        // doc.data() will be undefined in this case
+        console.log("No such document!");
+      }
+    }).catch((error) => {
+    console.log("Error getting document:", error);
+  });
 
   counter += 2;
   ret = {
