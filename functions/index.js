@@ -13,7 +13,7 @@ process.env.LOG_LEVEL = "error";
 const configs = f.config();
 //asia-northeast1
 const functions = ((f) => f.region("asia-east2").runWith({
-  timeoutSeconds: 4, memory: "2GB"
+  timeoutSeconds: 4, memory: "256MB"
 }))(f);
 
 admin.initializeApp({
@@ -168,8 +168,23 @@ app.get("/hello", (req, res) => {
   res.end();
 });
 
+app.get("/xyz", (req, res) => {
+  res.status(200).send(`/xyz`);
+});
+
 app.get("/", (req, res) => {
   res.send("This is GET.");
+  console.log("widget/ has been called.");
+  db.collection("users").get()
+    .then((snapshot) => {
+      snapshot.forEach((doc) => {
+        console.log(doc.id, "=>", doc.data());
+      });
+    })
+    .catch((err) => {
+      console.log("Error getting documents", err);
+    });
+
   res.end();
 });
 
