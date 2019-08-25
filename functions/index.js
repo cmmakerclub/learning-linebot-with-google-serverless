@@ -221,12 +221,14 @@ app.get("/firestore", (req, res) => {
   var docRef = db
     .collection(req.query.collection);
 
-  docRef.getCollections().then(collections => {
-    console.log(collections);
-    collections.forEach(i => {
-      console.log(i);
+  docRef
+    .get()
+    .then(collections => {
+      //console.log(collections);
+      collections.forEach(i => {
+        console.log(i);
+      });
     });
-  });
   //.doc(req.query.doc);
   //let output = {};
   //docRef
