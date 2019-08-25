@@ -240,10 +240,22 @@ app.get("/firestore", (req, res) => {
     .get()
     .then((doc) => {
       if (doc.exists) {
+        let data = Object.assign({}, doc.data());
         console.log("Document data:", doc.data(), `id=${doc.id}`);
-        firestoreCache[doc.id] = Object.assign({}, doc);
+        firestoreCache[doc.id] = Object.assign({}, data);
+        req.headers = {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Authorization": `Bearer ${data.token}`
+        };
+        console.log(`being posted.`);
+        post("https://notify-api.line.me/api/notify",
+          {
+            message:
+              data[req.query.message]
+          },
+          req);
+        console.log(`posted.`);
       } else {
-        // doc.data() will be undefined in this case
         console.log("No such document!");
       }
     }).catch((error) => {
@@ -253,7 +265,8 @@ app.get("/firestore", (req, res) => {
   counter += 2;
   ret = {
     ...ret, counter,
-    status: 200
+    status: 200,
+    firestoreCache
   };
   res.status(ret.status).send(JSON.stringify(ret));
 

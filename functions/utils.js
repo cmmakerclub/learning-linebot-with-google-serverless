@@ -83,7 +83,12 @@ const post = (url, body, req) => {
     body: JSON.stringify(body),
     headers
   };
-  return fetch(url, options).then(response => response.text());
+  return fetch(url, options)
+    .then(response => {
+      console.log(response);
+      let t = response.text();
+      return t;
+    });
 };
 
 const constructReplyMessage = (text) => {
