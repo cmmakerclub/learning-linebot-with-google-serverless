@@ -5,7 +5,7 @@ let {
   textMapping
 } = require("./utils");
 
-let console = { log: debug };
+//let console = { log: debug };
 let f = require("firebase-functions");
 
 const line = require("@line/bot-sdk");
@@ -19,6 +19,8 @@ const request = require("request-promise");
 const insertRows = require("./db/cmmc-bq-no-partition");
 
 process.env.LOG_LEVEL = "error";
+
+let db = initializeApp();
 const configs = f.config();
 //asia-northeast1
 const functions = ((f) => f.region("asia-east2").runWith({
@@ -50,8 +52,6 @@ function initializeApp() {
   // [END initialize_app]
   return db;
 }
-
-let db = initializeApp();
 
 const httpEndpoint = configs.iot.http.endpoint;
 let topic = `CMMC/PLUG-002/$/command`;
@@ -226,7 +226,7 @@ app.get("/firestore", (req, res) => {
     .get()
     .then((doc) => {
       if (doc.exists) {
-        console.log("Document data:", doc.data());
+        console.log("Document data:", doc.data(), `id=${doc.id}`);
       } else {
         // doc.data() will be undefined in this case
         console.log("No such document!");
