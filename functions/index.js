@@ -1,13 +1,22 @@
-let { constructReplyMessage, publishMqtt, textMapping } = require("./utils");
+const debug = require("debug")("nat-firebase");
+let {
+  constructReplyMessage,
+  publishMqtt,
+  textMapping
+} = require("./utils");
 
+let console = { log: debug };
 let f = require("firebase-functions");
+
 const line = require("@line/bot-sdk");
 const admin = require("firebase-admin");
+
 const { get, post } = require("./utils");
 const { flex1 } = require("./flex.messages");
 const moment = require("moment-timezone");
-const insertRows = require("./db/cmmc-bq-no-partition");
 const request = require("request-promise");
+
+const insertRows = require("./db/cmmc-bq-no-partition");
 
 process.env.LOG_LEVEL = "error";
 const configs = f.config();
@@ -16,12 +25,33 @@ const functions = ((f) => f.region("asia-east2").runWith({
   timeoutSeconds: 4, memory: "256MB"
 }))(f);
 
-admin.initializeApp({
-    credential: admin.credential.applicationDefault()
-  }
-);
+//const { Logging } = require("@google-cloud/logging");
+//// ...
+//// Instantiate the StackDriver Logging SDK. The project ID will
+//// be automatically inferred from the Cloud Functions environment.
+//const logging = new Logging();
+//const log = logging.log("my-custom-log-name");
 
-const db = admin.firestore();
+function initializeApp() {
+  //process.env.GCLOUD_PROJECT = "firestorebeta1test2";
+  // [START initialize_app]
+  console.log("initializeApp has been called.");
+
+  admin.initializeApp({
+    credential: admin.credential.applicationDefault()
+  });
+
+  const db = admin.firestore();
+  // [START_EXCLUDE]
+  const settings = { timestampsInSnapshots: true };
+  db.settings(settings);
+  // [END_EXCLUDE]
+
+  // [END initialize_app]
+  return db;
+}
+
+let db = initializeApp();
 
 const httpEndpoint = configs.iot.http.endpoint;
 let topic = `CMMC/PLUG-002/$/command`;
@@ -151,25 +181,58 @@ exports.line_cmmc_chatbot_webhook = functions.https.onRequest((
   } else {
 
   }
-
 });
 const express = require("express");
-const cookieParser = require("cookie-parser")();
+//const cookieParser = require("cookie-parser")();
+//const bodyParser = require("body-parser");
+
 const cors = require("cors")({ origin: true });
 const app = express();
 
 app.use(cors);
-app.use(cookieParser);
+
+//app.use(cookieParser);
 //app.use(validateFirebaseIdToken);
 //app.use(cookieParser);
 //app.use(validateFirebaseIdToken);
+
 app.get("/hello", (req, res) => {
-  res.send(`Hello /hello`);
-  res.end();
+  res.status(200).send(`Hello /hello`);
 });
 
 app.get("/xyz", (req, res) => {
+  console.log("xyz");
+  //const formattedDate = moment().format(format);
+  //console.log('Sending Formatted date:', formattedDate);
   res.status(200).send(`/xyz`);
+});
+
+app.get("/firestore", (req, res) => {
+  console.log(`req.query=`, req.query);
+  let ret = Object.assign({}, req.query);
+  if (!req.query.collection || !req.query.doc) {
+    console.log(`no collection, no doc.`);
+    ret.status = 500;
+    res.status(ret.status).send(JSON.stringify(ret));
+    return;
+  }
+
+  var docRef = db.collection("cities").doc("SF");
+
+  docRef.get().then(function(doc) {
+    if (doc.exists) {
+      console.log("Document data:", doc.data());
+    } else {
+      // doc.data() will be undefined in this case
+      console.log("No such document!");
+    }
+  }).catch(function(error) {
+    console.log("Error getting document:", error);
+  });
+
+  ret.status = 200;
+  res.status(ret.status).send(JSON.stringify(ret));
+
 });
 
 app.get("/", (req, res) => {
@@ -193,6 +256,19 @@ exports.cronSyntax = functions.pubsub
   .timeZone("Asia/Bangkok")
   .onRun(context => {
     console.log("triggered every 5 minutes", context);
+    return 3;
   });
 
-exports.widget = functions.https.onRequest(app);
+exports.scheduledFunction = functions.pubsub
+  .schedule("every 5 minutes")
+  .onRun((context) => {
+    console.log("This will be run every 5 minutes!", context);
+    return null;
+  });
+
+const widget = functions.https.onRequest(app);
+
+module.exports = {
+  ...module.exports,
+  widget
+};
