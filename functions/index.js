@@ -165,10 +165,19 @@ app.use(cookieParser);
 //app.use(validateFirebaseIdToken);
 app.get("/hello", (req, res) => {
   res.send(`Hello /hello`);
+  res.end();
 });
 
 app.get("/", (req, res) => {
   res.send("This is GET.");
+  res.end();
 });
+
+exports.cronSyntax = functions.pubsub
+  .schedule("5 * * * *")
+  .timeZone("Asia/Bangkok")
+  .onRun(context => {
+    console.log("triggered every 5 minutes", context);
+  });
 
 exports.widget = functions.https.onRequest(app);
