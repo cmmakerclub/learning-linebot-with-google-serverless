@@ -8,6 +8,7 @@ let {
 //let console = { log: debug };
 let counter = 0;
 let f = require("firebase-functions");
+let firestoreCache = {};
 
 const line = require("@line/bot-sdk");
 const admin = require("firebase-admin");
@@ -183,10 +184,10 @@ exports.line_cmmc_chatbot_webhook = functions.https.onRequest((
 
   }
 });
-const express = require("express");
 //const cookieParser = require("cookie-parser")();
 //const bodyParser = require("body-parser");
 
+const express = require("express");
 const cors = require("cors")({ origin: true });
 const app = express();
 
@@ -208,33 +209,19 @@ app.get("/xyz", (req, res) => {
   res.status(200).send(`/xyz`);
 });
 
-const firestoreCache = {};
-
-app.get("/firestore", (req, res) => {
+app.post("/firestore", (req, res) => {
   console.log(`req.query=`, req.query);
   let ret = Object.assign({}, req.query);
-  if (!req.query.collection || !req.query.doc) {
+  if (!req.query.collection) {
     console.log(`no collection, no doc.`);
     ret.status = 500;
     res.status(ret.status).send(JSON.stringify(ret));
     return;
   }
 
-  //let citiesRef = db.collection(req.query.collection);
-  //let allCities = citiesRef.get()
-  //  .then(snapshot => {
-  //    snapshot.forEach(doc => {
-  //      console.log(doc.id, "=>", doc.data());
-  //    });
-  //  })
-  //  .catch(err => {
-  //    console.log("Error getting documents", err);
-  //  });
-
   let output = {};
   var docRef = db
-    .collection(req.query.collection)
-    .doc(req.query.doc);
+    .doc(req.query.collection);
 
   let req2 = Object.assign({}, req);
   docRef
@@ -244,15 +231,33 @@ app.get("/firestore", (req, res) => {
         let data = Object.assign({}, doc.data());
         console.log("Document data:", doc.data(), `id=${doc.id}`);
         firestoreCache[doc.id] = Object.assign({}, data);
+        firestoreCache[doc.id].token = "hidden";
+
         req2.headers = {
           "Content-Type": "application/x-www-form-urlencoded",
           "Authorization": `Bearer ${data.token}`
         };
         console.log(`being posted.`);
+
+        let message;
+        if (isNaN(parseInt(req2.query.message))) {
+          message = req2.query.message;
+        } else {
+          message = data.messages[req2.query.message];
+        }
+
         post(
           "https://notify-api.line.me/api/notify",
-          `message=${data.messages[req2.query.message]}`,
-          req2);
+          `message=${message}`,
+          req2).then(() => {
+          counter += 2;
+          ret = {
+            ...ret, counter,
+            status: 200,
+            firestoreCache
+          };
+          res.status(ret.status).send(JSON.stringify(ret));
+        });
         console.log(`posted.`);
       } else {
         console.log("No such document!");
@@ -260,14 +265,6 @@ app.get("/firestore", (req, res) => {
     }).catch((error) => {
     console.log("Error getting document:", error);
   });
-
-  counter += 2;
-  ret = {
-    ...ret, counter,
-    status: 200,
-    firestoreCache
-  };
-  res.status(ret.status).send(JSON.stringify(ret));
 
 });
 
@@ -287,19 +284,20 @@ app.get("/", (req, res) => {
   res.end();
 });
 
-exports.cronSyntax = functions.pubsub
-  .schedule("* * * * *")
-  .timeZone("Asia/Bangkok")
-  .onRun(context => {
-    console.log("triggered every 1 minutes ", context, counter);
-    counter++;
-    return 3;
-  });
+//exports.cronSyntax = functions.pubsub
+//  .schedule("* * * * *")
+//  .timeZone("Asia/Bangkok")
+//  .onRun(context => {
+//    console.log("triggered every 1 minutes ", context, counter);
+//    counter++;
+//    return 3;
+//  });
 
 exports.scheduledFunction = functions.pubsub
-  .schedule("every 5 minutes")
+  .schedule("every midnight")
+  .timeZone("Asia/Bangkok")
   .onRun((context) => {
-    console.log("This will be run every 5 minutes!", context);
+    console.log("This will be run every midnight", context);
     return null;
   });
 
