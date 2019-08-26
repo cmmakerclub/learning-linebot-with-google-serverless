@@ -55,8 +55,8 @@ function initializeApp() {
   return db;
 }
 
-const httpEndpoint = configs.iot.http.endpoint;
-let topic = `CMMC/PLUG-002/$/command`;
+//const httpEndpoint = configs.iot.http.endpoint;
+//let topic = `CMMC/PLUG-002/$/command`;
 
 const postToDialogflow = (req, body) => {
   req.headers.host = "bots.dialogflow.com";
@@ -190,6 +190,7 @@ exports.line_cmmc_chatbot_webhook = functions.https.onRequest((
 const express = require("express");
 const cors = require("cors")({ origin: true });
 const app = express();
+const router = express.Router();
 
 app.use(cors);
 
@@ -198,18 +199,18 @@ app.use(cors);
 //app.use(cookieParser);
 //app.use(validateFirebaseIdToken);
 
-app.get("/hello", (req, res) => {
+router.get("/hello", (req, res) => {
   res.status(200).send(`Hello /hello`);
 });
 
-app.get("/xyz", (req, res) => {
+router.get("/xyz", (req, res) => {
   console.log("xyz");
   //const formattedDate = moment().format(format);
   //console.log('Sending Formatted date:', formattedDate);
   res.status(200).send(`/xyz`);
 });
 
-app.post("/firestore", (req, res) => {
+router.post("/firestore", (req, res) => {
   console.log(`req.query=`, req.query);
   let ret = Object.assign({}, req.query);
   if (!req.query.collection) {
@@ -293,14 +294,15 @@ app.get("/", (req, res) => {
 //    return 3;
 //  });
 
-exports.scheduledFunction = functions.pubsub
-  .schedule("every midnight")
-  .timeZone("Asia/Bangkok")
-  .onRun((context) => {
-    console.log("This will be run every midnight", context);
-    return null;
-  });
+//exports.scheduledFunction = functions.pubsub
+//  .schedule("every midnight")
+//  .timeZone("Asia/Bangkok")
+//  .onRun((context) => {
+//    console.log("This will be run every midnight", context);
+//    return null;
+//  });
 
+app.use("/", router);
 const widget = functions.https.onRequest(app);
 
 module.exports = {
