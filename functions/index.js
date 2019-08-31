@@ -145,7 +145,7 @@ exports.line_cmmc_chatbot_webhook = functions.https.onRequest((
     channelSecret: configs.nat.line.bot1["channel-secret-token"]
   };
 
-  console.log(config);
+  console.log("line_cmmc_chatbot_webhook", config);
 
   const client = new line.Client(config);
   if (req.method === "POST") {
@@ -166,10 +166,22 @@ exports.line_cmmc_chatbot_webhook = functions.https.onRequest((
         try {
           console.log(data);
           client.replyMessage(event.replyToken, data).then(res => {
-            console.log(`reply result = `, res);
+            console.log(`[] reply result = `, res);
           });
         } catch (e) {
           console.log("error", e);
+        }
+
+        if (event.type == "image") {
+          console.log(">> [1] image <<");
+          console.log(">> [2] image <<");
+          console.log(">> [3] image <<");
+          console.log(">> [4] image <<");
+          console.log(">> [5] image <<");
+          handleImage(event.message, event.replyToken);
+          res.status(200).send("post ok");
+        } else {
+          res.status(200).send("post ok");
         }
 
         // calling mqtt bridge
@@ -177,15 +189,64 @@ exports.line_cmmc_chatbot_webhook = functions.https.onRequest((
         console.log("/-----------------------------------------");
       }
     });
-    res.status(200).send("post ok");
   } else if (req.method === "GET") {
     res.status(200).send("GET OK " + JSON.stringify(req));
   } else {
 
   }
 });
+
+function downloadContent(messageId, downloadPath) {
+  return client.getMessageContent(messageId)
+    .then((stream) => new Promise((resolve, reject) => {
+      const writable = fs.createWriteStream(downloadPath);
+      stream.pipe(writable);
+      stream.on("end", () => resolve(downloadPath));
+      stream.on("error", reject);
+    }));
+}
+
 //const cookieParser = require("cookie-parser")();
 //const bodyParser = require("body-parser");
+function handleImage(message, replyToken) {
+  let getContent;
+  if (message.contentProvider.type === "line") {
+    const downloadPath = path.join(__dirname,
+      "downloaded",
+      `${message.id}.jpg`);
+    const previewPath = path.join(__dirname,
+      "downloaded",
+      `${message.id}-preview.jpg`);
+
+    getContent = downloadContent(message.id, downloadPath)
+      .then((downloadPath) => {
+        // ImageMagick is needed here to run 'convert'
+        // Please consider about security and performance by yourself
+        cp.execSync(`convert -resize 240x jpeg:${downloadPath} jpeg:${previewPath}`);
+
+        return {
+          originalContentUrl: baseURL + "/downloaded/" +
+            path.basename(downloadPath),
+          previewImageUrl: baseURL + "/downloaded/" +
+            path.basename(previewPath)
+        };
+      });
+  } else if (message.contentProvider.type === "external") {
+    getContent = Promise.resolve(message.contentProvider);
+  }
+
+  return getContent
+    .then(({ originalContentUrl, previewImageUrl }) => {
+      return client.replyMessage(
+        replyToken,
+        {
+          type: "image",
+          originalContentUrl,
+          previewImageUrl
+        }
+      );
+    });
+}
 
 const express = require("express");
 const cors = require("cors")({ origin: true });
@@ -193,6 +254,7 @@ const app = express();
 const router = express.Router();
 
 app.use(cors);
+app.use("/", router);
 
 //app.use(cookieParser);
 //app.use(validateFirebaseIdToken);
@@ -302,7 +364,6 @@ app.get("/", (req, res) => {
 //    return null;
 //  });
 
-app.use("/", router);
 const widget = functions.https.onRequest(app);
 
 module.exports = {
